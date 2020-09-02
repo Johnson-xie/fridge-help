@@ -101,7 +101,7 @@ def draw_power(request):
             start = datetime.date.today()
     end = start + datetime.timedelta(days=1)
 
-    sql = "select time, voltage, current, rate, consumption from tbl_power where time>=%s and time<=%s order by time"
+    sql = "select time, voltage, current, rate, consumption from tbl_power where time>=%s and time<%s order by time"
     with connection.cursor() as c:
         c.execute(sql, (start, end))
         rows = c.fetchall()
@@ -174,4 +174,43 @@ def draw_temperature(request):
                 .add_yaxis(lines[5][0], lines[5][1])
                 .set_global_opts(title_opts=opts.TitleOpts(title="测试监控", subtitle="传感器温度信息"))
         )
+    return HttpResponse(c.render_embed())
+
+
+def draw_action(request):
+    start = request.GET.get('start')
+
+    if not start:
+        start = datetime.date.today()
+    else:
+        try:
+            start = datetime.datetime.strptime(start, '%Y-%m-%d')
+        except:
+            start = datetime.date.today()
+    end = start + datetime.timedelta(days=1)
+
+    sql = "select time, yaw, pitch, roll, acc_x, acc_y, acc_z from tbl_door where time>=%s and time<%s order by time"
+    with connection.cursor() as c:
+        c.execute(sql, (start, end))
+        rows = c.fetchall()
+    time_list, yaw_list, pitch_list, roll_list, accx_list, accy_list, accz_list = [[] for _ in range(7)]
+    for time, yaw, pitch, roll, acc_x , acc_y, acc_z in rows:
+        time_list.append(time)
+        yaw_list.append(yaw)
+        roll_list.append(roll)
+        accx_list.append(acc_x)
+        accy_list.append(acc_y)
+        accz_list.append(acc_z)
+
+    c = (
+        charts.Line()
+            .add_xaxis(time_list)
+            .add_yaxis("yaw", yaw_list)
+            .add_yaxis("pitch", pitch_list)
+            .add_yaxis("roll", roll_list)
+            .add_yaxis("x向加速度", accx_list)
+            .add_yaxis("y向加速度", accy_list)
+            .add_yaxis("z向加速度", accz_list)
+            .set_global_opts(title_opts=opts.TitleOpts(title="测试监控", subtitle="门的开关监控数据流"))
+    )
     return HttpResponse(c.render_embed())
