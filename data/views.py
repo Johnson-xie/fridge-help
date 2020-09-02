@@ -17,7 +17,6 @@ from pyecharts import charts
 
 from .utils import layer_map
 
-
 @api_view(['GET'])
 def get_temperature(request):
     start = request.query_params.get('start', '2020-01-01 00:00:00')
