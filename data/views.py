@@ -1,3 +1,4 @@
+import datetime
 import random
 from itertools import groupby
 
@@ -80,17 +81,25 @@ def get_power(request):
 def index(request):
     c = (
         charts.Line()
-        .add_xaxis([i for i in range(1000)])
-        .add_yaxis("商家A", [random.randint(50, 100) for i in range(1000)])
-        .add_yaxis("商家B", [random.randint(1, 50) for i in range(1000)])
-        .set_global_opts(title_opts=opts.TitleOpts(title="Bar-基本示例", subtitle="我是副标题"))
+            .add_xaxis([i for i in range(1000)])
+            .add_yaxis("商家A", [random.randint(50, 100) for i in range(1000)])
+            .add_yaxis("商家B", [random.randint(1, 50) for i in range(1000)])
+            .set_global_opts(title_opts=opts.TitleOpts(title="Bar-基本示例", subtitle="我是副标题"))
     )
     return HttpResponse(c.render_embed())
 
 
 def draw_power(request):
-    start = request.GET.get('start', '2020-01-01 00:00:00')
-    end = request.GET.get('end', '2099-12-31 00:00:00')
+    start = request.GET.get('start')
+
+    if not start:
+        start = datetime.date.today()
+    else:
+        try:
+            start = datetime.datetime.strptime(start, '%Y-%m-%d')
+        except:
+            start = datetime.date.today()
+    end = start + datetime.timedelta(days=1)
 
     sql = "select time, voltage, current, rate, consumption from tbl_power where time>=%s and time<=%s order by time"
     with connection.cursor() as c:
@@ -106,21 +115,29 @@ def draw_power(request):
 
     c = (
         charts.Line()
-        .add_xaxis(time_list)
-        .add_yaxis("电压", voltage_list)
-        .add_yaxis("电流", current_list)
-        .add_yaxis("功率", rate_list)
-        .add_yaxis("累计耗电量", consumption_list)
-        .set_global_opts(title_opts=opts.TitleOpts(title="测试监控", subtitle="耗电基本信息"))
+            .add_xaxis(time_list)
+            .add_yaxis("电压", voltage_list)
+            .add_yaxis("电流", current_list)
+            .add_yaxis("功率", rate_list)
+            .add_yaxis("累计耗电量", consumption_list)
+            .set_global_opts(title_opts=opts.TitleOpts(title="测试监控", subtitle="耗电基本信息"))
     )
     return HttpResponse(c.render_embed())
 
 
 def draw_temperature(request):
-    start = request.GET.get('start', '2020-01-01 00:00:00')
-    end = request.GET.get('end', '2099-12-31 00:00:00')
+    start = request.GET.get('start')
 
-    sql = 'SELECT time, code, value FROM  tbl_temperature where time>=%s AND time<=%s order by code, time'
+    if not start:
+        start = datetime.date.today()
+    else:
+        try:
+            start = datetime.datetime.strptime(start, '%Y-%m-%d')
+        except:
+            start = datetime.date.today()
+    end = start + datetime.timedelta(days=1)
+
+    sql = 'SELECT time, code, value FROM  tbl_temperature where time>=%s AND time<%s order by code, time'
     with connection.cursor() as c:
         c.execute(sql, (start, end))
         rows = c.fetchall()
@@ -138,20 +155,23 @@ def draw_temperature(request):
             values = [value for _, _, value in content]
         lines.append((layer_map[key], values))
 
-    # for code, t, values in rows:
-    #     if not time_list:
-    #         time_list = t.split(',')
-    #     lines.append((layer_map[code], values.split(',')))
-
-    c = (
-        charts.Line()
-        .add_xaxis(time_list)
-        .add_yaxis(lines[0][0], lines[0][1])
-        .add_yaxis(lines[1][0], lines[1][1])
-        .add_yaxis(lines[2][0], lines[2][1])
-        .add_yaxis(lines[3][0], lines[3][1])
-        .add_yaxis(lines[4][0], lines[4][1])
-        .add_yaxis(lines[5][0], lines[5][1])
-        .set_global_opts(title_opts=opts.TitleOpts(title="测试监控", subtitle="传感器温度信息"))
-    )
+    if len(lines) != 6:
+        c = (
+            charts.Line()
+                .add_xaxis(time_list)
+                .add_yaxis("传感器异常", [])
+                .set_global_opts(title_opts=opts.TitleOpts(title="测试监控", subtitle="传感器温度信息"))
+        )
+    else:
+        c = (
+            charts.Line()
+                .add_xaxis(time_list)
+                .add_yaxis(lines[0][0], lines[0][1])
+                .add_yaxis(lines[1][0], lines[1][1])
+                .add_yaxis(lines[2][0], lines[2][1])
+                .add_yaxis(lines[3][0], lines[3][1])
+                .add_yaxis(lines[4][0], lines[4][1])
+                .add_yaxis(lines[5][0], lines[5][1])
+                .set_global_opts(title_opts=opts.TitleOpts(title="测试监控", subtitle="传感器温度信息"))
+        )
     return HttpResponse(c.render_embed())
