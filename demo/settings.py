@@ -122,6 +122,8 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 # echarts config
 DJANGO_ECHARTS = {
     'echarts_version': '4.0.4',
