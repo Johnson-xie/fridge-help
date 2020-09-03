@@ -1,9 +1,11 @@
 import datetime
+import os
 import random
 from itertools import groupby
 
 from django.db import connection
 from django.http import HttpResponse
+from django.shortcuts import render
 from jinja2 import Environment, FileSystemLoader
 from pyecharts.charts import Bar, Grid, Line, Kline
 from pyecharts.faker import Faker
@@ -12,12 +14,15 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from demo import settings
+
 CurrentConfig.GLOBAL_ENV = Environment(loader=FileSystemLoader("./data/templates"))
 
 from pyecharts import options as opts
 from pyecharts import charts
 
-from .utils import layer_map
+from .utils import layer_map, get_cache_html
+
 
 @api_view(['GET'])
 def get_temperature(request):
@@ -220,13 +225,16 @@ def draw_action(request):
 def draws(request):
 
     start = request.GET.get('day')
-
+    need_cache = False
     if not start:
         start = datetime.date.today()
     else:
         try:
+            if start in get_cache_html():
+                return render(request, 'caches/%s.html' % start)
+            need_cache = True
             start = datetime.datetime.strptime(start, '%Y-%m-%d')
-        except:
+        except Exception as msg:
             start = datetime.date.today()
     end = start + datetime.timedelta(days=1)
 
@@ -366,4 +374,7 @@ def draws(request):
         action_line,
     )
 
+    if need_cache:
+        path = os.path.join(settings.BASE_DIR, 'data', 'templates', 'caches', '%s.html' % start.strftime('%Y-%m-%d'))
+        grid.render(path)
     return HttpResponse(grid.render_embed())
