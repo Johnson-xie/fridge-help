@@ -5,6 +5,8 @@ from itertools import groupby
 from django.db import connection
 from django.http import HttpResponse
 from jinja2 import Environment, FileSystemLoader
+from pyecharts.charts import Bar, Grid, Line, Kline
+from pyecharts.faker import Faker
 from pyecharts.globals import CurrentConfig
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -213,3 +215,131 @@ def draw_action(request):
             .set_global_opts(title_opts=opts.TitleOpts(title="测试监控", subtitle="门的开关监控数据流"))
     )
     return HttpResponse(c.render_embed())
+
+
+def draws(request):
+
+    start = request.GET.get('day')
+
+    if not start:
+        start = datetime.date.today()
+    else:
+        try:
+            start = datetime.datetime.strptime(start, '%Y-%m-%d')
+        except:
+            start = datetime.date.today()
+    end = start + datetime.timedelta(days=1)
+
+    power_sql = "select time, voltage, current, rate, consumption from tbl_power where time>=%s and time<%s order by time"
+    temp_sql = 'SELECT time, code, value FROM  tbl_temperature where time>=%s AND time<%s order by code, time'
+    action_sql = "select time, yaw, pitch, roll, acc_x, acc_y, acc_z from tbl_door where time>=%s and time<%s order by time"
+
+    with connection.cursor() as c:
+        c.execute(power_sql, (start, end))
+        power_rows = c.fetchall()
+
+        c.execute(temp_sql, (start, end))
+        temp_rows = c.fetchall()
+
+        c.execute(action_sql, (start, end))
+        action_rows = c.fetchall()
+
+    time_list, voltage_list, current_list, rate_list, consumption_list = [[] for _ in range(5)]
+    for time, voltage, current, rate, consumption in power_rows:
+        time_list.append(time)
+        voltage_list.append(voltage)
+        current_list.append(current)
+        rate_list.append(rate)
+        consumption_list.append(consumption)
+
+    power_line = (
+        Line()
+            .add_xaxis(time_list)
+            .add_yaxis("电压", voltage_list)
+            .add_yaxis("电流", current_list)
+            .add_yaxis("功率", rate_list)
+            .add_yaxis("累计耗电量", consumption_list)
+            .set_global_opts(
+            title_opts=opts.TitleOpts(title="耗电信息"),
+            tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+            yaxis_opts=opts.AxisOpts(
+                is_scale=True,
+                splitarea_opts=opts.SplitAreaOpts(
+                    is_show=True,
+                    areastyle_opts=opts.AreaStyleOpts(opacity=1)
+                ),
+            ),
+        )
+    )
+
+    time_list, lines = [], []
+    for key, content in groupby(temp_rows, key=lambda x: x[1]):
+        if not time_list:
+            values = []
+            for time, _, value in content:
+                time_list.append(time)
+                values.append(value)
+        else:
+            values = [value for _, _, value in content]
+        lines.append((layer_map[key], values))
+
+    temp_line = Line()
+    temp_line.add_xaxis(time_list)
+    for (name, content), color in zip(lines, ['red', 'orange', 'yellow', 'green', 'blue', 'blank']):
+        temp_line.add_yaxis(name, content, color=color)
+
+    temp_line.set_global_opts(
+        title_opts=opts.TitleOpts(title="温度信息", pos_top="48%"),
+        tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross",),
+        legend_opts=opts.LegendOpts(pos_top="48%"),
+        yaxis_opts=opts.AxisOpts(
+            is_scale=True,
+            splitarea_opts=opts.SplitAreaOpts(
+                is_show=True,
+                areastyle_opts=opts.AreaStyleOpts(opacity=1)
+            ),
+        ),
+    )
+
+    time_list, yaw_list, pitch_list, roll_list, accx_list, accy_list, accz_list = [[] for _ in range(7)]
+    for time, yaw, pitch, roll, acc_x , acc_y, acc_z in action_rows:
+        time_list.append(time)
+        yaw_list.append(yaw)
+        pitch_list.append(pitch)
+        roll_list.append(roll)
+        accx_list.append(acc_x)
+        accy_list.append(acc_y)
+        accz_list.append(acc_z)
+
+    action_line = (
+        Line()
+            .add_xaxis(time_list)
+            .add_yaxis("yaw", yaw_list)
+            .add_yaxis("pitch", pitch_list)
+            .add_yaxis("roll", roll_list)
+            .add_yaxis("acc_x", accx_list)
+            .add_yaxis("acc_y", accy_list)
+            .add_yaxis("acc_z", accz_list)
+            .set_global_opts(
+            title_opts=opts.TitleOpts(title="门的开关信息"),
+            tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+            legend_opts=opts.LegendOpts(pos_top="48%"),
+        )
+    )
+
+    # grid = (
+    #     Grid(init_opts=opts.InitOpts(width="2600px", height="1200px"))
+    #         .add(power_line, grid_opts=opts.GridOpts(pos_bottom="60%"))
+    #         .add(temp_line, grid_opts=opts.GridOpts(pos_top="60%"))
+    #         # .add(action_line, grid_opts=opts.GridOpts(pos_top="20%"))
+    # )
+
+    from pyecharts.charts import Page
+    grid = Page(layout=Page.SimplePageLayout)
+    grid.add(
+        power_line,
+        temp_line,
+        action_line,
+    )
+
+    return HttpResponse(grid.render_embed())
