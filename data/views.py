@@ -89,7 +89,7 @@ def index(request):
 
 
 def draw_power(request):
-    start = request.GET.get('start')
+    start = request.GET.get('day')
 
     if not start:
         start = datetime.date.today()
@@ -125,7 +125,7 @@ def draw_power(request):
 
 
 def draw_temperature(request):
-    start = request.GET.get('start')
+    start = request.GET.get('day')
 
     if not start:
         start = datetime.date.today()
@@ -177,7 +177,7 @@ def draw_temperature(request):
 
 
 def draw_action(request):
-    start = request.GET.get('start')
+    start = request.GET.get('day')
 
     if not start:
         start = datetime.date.today()
