@@ -289,9 +289,10 @@ def draws(request):
         temp_line.add_yaxis(name, content, color=color)
 
     temp_line.set_global_opts(
-        title_opts=opts.TitleOpts(title="温度信息", pos_top="48%"),
+        # title_opts=opts.TitleOpts(title="温度信息", pos_top="50%"),
+        title_opts=opts.TitleOpts(title="温度信息"),
         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross",),
-        legend_opts=opts.LegendOpts(pos_top="48%"),
+        # legend_opts=opts.LegendOpts(pos_top="50%"),
         yaxis_opts=opts.AxisOpts(
             is_scale=True,
             splitarea_opts=opts.SplitAreaOpts(
@@ -321,9 +322,17 @@ def draws(request):
             .add_yaxis("acc_y", accy_list)
             .add_yaxis("acc_z", accz_list)
             .set_global_opts(
+            # title_opts=opts.TitleOpts(title="门的开关信息", pos_top="100%"),
             title_opts=opts.TitleOpts(title="门的开关信息"),
             tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
-            legend_opts=opts.LegendOpts(pos_top="48%"),
+            # legend_opts=opts.LegendOpts(),
+            yaxis_opts=opts.AxisOpts(
+                is_scale=True,
+                splitarea_opts=opts.SplitAreaOpts(
+                    is_show=True,
+                    areastyle_opts=opts.AreaStyleOpts(opacity=1)
+                ),
+            ),
         )
     )
 
@@ -331,7 +340,7 @@ def draws(request):
     #     Grid(init_opts=opts.InitOpts(width="2600px", height="1200px"))
     #         .add(power_line, grid_opts=opts.GridOpts(pos_bottom="60%"))
     #         .add(temp_line, grid_opts=opts.GridOpts(pos_top="60%"))
-    #         # .add(action_line, grid_opts=opts.GridOpts(pos_top="20%"))
+    #         # .add(action_line, grid_opts=opts.GridOpts(pos_top="80%"))
     # )
 
     from pyecharts.charts import Page
