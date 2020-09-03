@@ -253,7 +253,12 @@ def draws(request):
         consumption_list.append(consumption)
 
     power_line = (
-        Line()
+        Line(init_opts=opts.InitOpts(
+            bg_color="rgba(255, 250, 205, 0.2)",
+            width="2400px",
+            height="400px",
+            theme=opts.global_options.ThemeType.MACARONS
+        ))
             .add_xaxis(time_list)
             .add_yaxis("电压", voltage_list)
             .add_yaxis("电流", current_list)
@@ -262,6 +267,7 @@ def draws(request):
             .set_global_opts(
             title_opts=opts.TitleOpts(title="耗电信息"),
             tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
+            legend_opts=opts.LegendOpts(item_width=60, item_height=30, selected_mode="multiple"),
             yaxis_opts=opts.AxisOpts(
                 is_scale=True,
                 splitarea_opts=opts.SplitAreaOpts(
@@ -283,7 +289,12 @@ def draws(request):
             values = [value for _, _, value in content]
         lines.append((layer_map[key], values))
 
-    temp_line = Line()
+    temp_line = Line(init_opts=opts.InitOpts(
+            bg_color="rgba(255, 250, 205, 0.2)",
+            width="2400px",
+            height="400px",
+            theme=opts.global_options.ThemeType.WHITE
+        ))
     temp_line.add_xaxis(time_list)
     for (name, content), color in zip(lines, ['red', 'orange', 'yellow', 'green', 'blue', 'blank']):
         temp_line.add_yaxis(name, content, color=color)
@@ -292,7 +303,7 @@ def draws(request):
         # title_opts=opts.TitleOpts(title="温度信息", pos_top="50%"),
         title_opts=opts.TitleOpts(title="温度信息"),
         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross",),
-        # legend_opts=opts.LegendOpts(pos_top="50%"),
+        legend_opts=opts.LegendOpts(item_width=60, item_height=30, selected_mode="multiple"),
         yaxis_opts=opts.AxisOpts(
             is_scale=True,
             splitarea_opts=opts.SplitAreaOpts(
@@ -313,7 +324,11 @@ def draws(request):
         accz_list.append(acc_z)
 
     action_line = (
-        Line()
+        Line(init_opts=opts.InitOpts(
+            bg_color="rgba(255, 250, 205, 0.2)",
+            width="2400px",
+            height="500px",
+        ))
             .add_xaxis(time_list)
             .add_yaxis("yaw", yaw_list)
             .add_yaxis("pitch", pitch_list)
@@ -325,7 +340,7 @@ def draws(request):
             # title_opts=opts.TitleOpts(title="门的开关信息", pos_top="100%"),
             title_opts=opts.TitleOpts(title="门的开关信息"),
             tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
-            # legend_opts=opts.LegendOpts(),
+            legend_opts=opts.LegendOpts(item_width=60, item_height=30, selected_mode="multiple"),
             yaxis_opts=opts.AxisOpts(
                 is_scale=True,
                 splitarea_opts=opts.SplitAreaOpts(
