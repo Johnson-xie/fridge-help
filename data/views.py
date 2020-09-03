@@ -230,9 +230,9 @@ def draws(request):
             start = datetime.date.today()
     end = start + datetime.timedelta(days=1)
 
-    power_sql = "select time, voltage, current, rate, consumption from tbl_power where time>=%s and time<%s order by time"
-    temp_sql = 'SELECT time, code, value FROM  tbl_temperature where time>=%s AND time<%s order by code, time'
-    action_sql = "select time, yaw, pitch, roll, acc_x, acc_y, acc_z from tbl_door where time>=%s and time<%s order by time"
+    power_sql = 'SELECT DATE_FORMAT(time, "%%Y-%%m-%%d %%H:%%i:%%S") as time, voltage, current, rate, consumption from tbl_power where time>=%s and time<%s order by time'
+    temp_sql = 'SELECT DATE_FORMAT(time, "%%Y-%%m-%%d %%H:%%i:%%S") as time, code, value FROM  tbl_temperature where time>=%s AND time<%s order by code, time'
+    action_sql = 'SELECT DATE_FORMAT(time, "%%Y-%%m-%%d %%H:%%i:%%S") as time, yaw, pitch, roll, acc_x, acc_y, acc_z from tbl_door where time>=%s and time<%s order by time'
 
     with connection.cursor() as c:
         c.execute(power_sql, (start, end))
