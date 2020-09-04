@@ -282,7 +282,7 @@ def draws(request):
                     areastyle_opts=opts.AreaStyleOpts(opacity=1)
                 ),
             ),
-            datazoom_opts=opts.DataZoomOpts(is_show=True),
+            datazoom_opts=opts.DataZoomOpts(is_show=True, range_start=0, range_end=100),
             toolbox_opts=opts.ToolboxOpts(is_show=True)
         )
     )
@@ -319,7 +319,7 @@ def draws(request):
                 areastyle_opts=opts.AreaStyleOpts(opacity=1)
             ),
         ),
-        datazoom_opts=opts.DataZoomOpts(is_show=True),
+        datazoom_opts=opts.DataZoomOpts(is_show=True, range_start=0, range_end=100),
         toolbox_opts=opts.ToolboxOpts(is_show=True)
 
     )
@@ -359,7 +359,7 @@ def draws(request):
                     areastyle_opts=opts.AreaStyleOpts(opacity=1)
                 ),
             ),
-            datazoom_opts=opts.DataZoomOpts(is_show=True),
+            datazoom_opts=opts.DataZoomOpts(is_show=True, range_start=0, range_end=100),
             toolbox_opts=opts.ToolboxOpts(is_show=True)
         )
     )

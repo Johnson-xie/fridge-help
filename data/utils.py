@@ -57,8 +57,10 @@ class Solution:
         self.show_ret()
 
     def show_ret(self):
+        serial_number = 1
         for start, end in self.ret:
-            print('%s----%s' % (start.strftime('%Y-%m-%d %H:%M:%S'), end.strftime('%Y-%m-%d %H:%M:%S')), '持续时间：%s' % (end - start).seconds)
+            print(serial_number, '%s----%s' % (start.strftime('%Y-%m-%d %H:%M:%S'), end.strftime('%Y-%m-%d %H:%M:%S')), '持续时间：%s' % (end - start).seconds)
+            serial_number += 1
 
 
 if __name__ == '__main__':
