@@ -7,8 +7,7 @@ from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import render
 from jinja2 import Environment, FileSystemLoader
-from pyecharts.charts import Bar, Grid, Line, Kline
-from pyecharts.faker import Faker
+from pyecharts.charts import Line
 from pyecharts.globals import CurrentConfig
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -283,6 +282,7 @@ def draws(request):
                     areastyle_opts=opts.AreaStyleOpts(opacity=1)
                 ),
             ),
+            datazoom_opts=opts.DataZoomOpts(is_show=True)
         )
     )
 
@@ -308,7 +308,6 @@ def draws(request):
         temp_line.add_yaxis(name, content, color=color)
 
     temp_line.set_global_opts(
-        # title_opts=opts.TitleOpts(title="温度信息", pos_top="50%"),
         title_opts=opts.TitleOpts(title="温度信息"),
         tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross",),
         legend_opts=opts.LegendOpts(item_width=60, item_height=30, selected_mode="multiple"),
@@ -319,6 +318,8 @@ def draws(request):
                 areastyle_opts=opts.AreaStyleOpts(opacity=1)
             ),
         ),
+        datazoom_opts=opts.DataZoomOpts(is_show=True)
+
     )
 
     time_list, yaw_list, pitch_list, roll_list, accx_list, accy_list, accz_list = [[] for _ in range(7)]
@@ -356,6 +357,7 @@ def draws(request):
                     areastyle_opts=opts.AreaStyleOpts(opacity=1)
                 ),
             ),
+            datazoom_opts=opts.DataZoomOpts(is_show=True)
         )
     )
 
