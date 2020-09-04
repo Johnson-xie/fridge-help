@@ -32,3 +32,12 @@ class Temperature(models.Model):
 
     class Meta:
         db_table = 'tbl_temperature'
+
+
+class Action(models.Model):
+    start = models.DateTimeField(db_index=True)
+    end = models.DateTimeField(db_index=True)
+    duration = models.FloatField()
+
+    class Meta:
+        db_table = 'tbl_action'
