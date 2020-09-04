@@ -41,7 +41,7 @@ class Solution:
         self.data = self.c.fetchall()
 
     def judge_open(self, is_open=False, is_close=False):
-
+        """当门的角度超过阙值一定时间间隔粒度，及判断为开门，当阙值小于一定时间间隔粒度，即判断为关门时间"""
         index = 0
         while index < len(self.data):
             cnt = 0
