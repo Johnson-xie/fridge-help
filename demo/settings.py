@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'django_echarts',
+    'rest_framework.authtoken',  # add this line
 
     'data.apps.DataConfig',
     'app.apps.AppConfig',

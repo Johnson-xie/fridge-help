@@ -12,7 +12,7 @@ def to_recmsg(request):
     return render(request, 'recmsg.html')
 
 
-clients={} #创建客户端列表，存储所有在线客户端
+clients = {}  # 创建客户端列表，存储所有在线客户端
 
 
 # 允许接受ws请求
@@ -34,7 +34,7 @@ def link(request):
 
 def send(request):
     # 获取消息
-    msg=request.POST.get("msg")
+    msg = request.POST.get("msg")
     # 获取到当前所有在线客户端，即clients
     # 遍历给所有客户端推送消息
     for client in clients:

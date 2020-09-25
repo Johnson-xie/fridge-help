@@ -296,7 +296,9 @@ def draws(request):
                 values.append(value)
         else:
             values = [value for _, _, value in content]
-        lines.append((layer_map[key], values))
+        name = layer_map.get(key)
+        if name:
+            lines.append((name, values))
 
     temp_line = Line(init_opts=opts.InitOpts(
             bg_color="rgba(255, 250, 205, 0.2)",
@@ -305,8 +307,8 @@ def draws(request):
             theme=opts.global_options.ThemeType.WHITE
         ))
     temp_line.add_xaxis(time_list)
-    for (name, content), color in zip(lines, ['red', 'orange', 'yellow', 'green', 'blue', 'blank']):
-        temp_line.add_yaxis(name, content, color=color)
+    for name, content in lines:
+        temp_line.add_yaxis(name, content)
 
     temp_line.set_global_opts(
         title_opts=opts.TitleOpts(title="温度信息"),
